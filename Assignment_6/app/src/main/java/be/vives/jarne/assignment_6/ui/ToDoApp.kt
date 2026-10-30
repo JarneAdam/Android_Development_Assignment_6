@@ -66,6 +66,10 @@ fun ToDoApp(modifier: Modifier = Modifier) {
                     modifier = modifier,
                     viewModel = addEditViewModel,
                     onNavigateBack = { backStack.removeLastOrNull() },
+                    onCancel = { backStack.removeLastOrNull() },
+                    onSave = {
+                        backStack.removeLastOrNull()
+                    },
                 )
             }
         },

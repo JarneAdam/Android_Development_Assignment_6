@@ -12,13 +12,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -39,30 +46,46 @@ fun AddEditToDoScreen(
     onCancel: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    AddEditToDoContent(
-        title = uiState.title,
-        onTitleChange = viewModel::onTitleChange,
-        description = uiState.description,
-        onDescriptionChange = viewModel::onDescriptionChange,
-        selectedUser = uiState.selectedUser,
-        onUserSelected = viewModel::onUserSelected,
-        users = uiState.users,
-        analysisDone = uiState.analysisDone,
-        onAnalysisDoneChange = viewModel::onAnalysisDoneChange,
-        developmentDone = uiState.developmentDone,
-        onDevelopmentDoneChange = viewModel::onDevelopmentDoneChange,
-        reviewAndTestingDone = uiState.reviewAndTestingDone,
-        onReviewAndTestingDoneChange = viewModel::onReviewAndTestingDoneChange,
-        acceptanceDone = uiState.acceptanceDone,
-        onAcceptanceDoneChange = viewModel::onAcceptanceDoneChange,
-        onSave = {
-            onSave(viewModel.getUpdatedToDo())
-        },
-        onCancel = onCancel,
-        onNavigateBack = onNavigateBack,
-        modifier = modifier,
-    )
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            viewModel.clearError()
+        }
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { innerPadding ->
+        AddEditToDoContent(
+            title = uiState.title,
+            onTitleChange = viewModel::onTitleChange,
+            description = uiState.description,
+            onDescriptionChange = viewModel::onDescriptionChange,
+            isNewToDo = uiState.isNewToDo,
+            isLoading = uiState.isLoading,
+            onSurpriseMeClick = viewModel::onSurpriseMe,
+            selectedUser = uiState.selectedUser,
+            onUserSelected = viewModel::onUserSelected,
+            users = uiState.users,
+            analysisDone = uiState.analysisDone,
+            onAnalysisDoneChange = viewModel::onAnalysisDoneChange,
+            developmentDone = uiState.developmentDone,
+            onDevelopmentDoneChange = viewModel::onDevelopmentDoneChange,
+            reviewAndTestingDone = uiState.reviewAndTestingDone,
+            onReviewAndTestingDoneChange = viewModel::onReviewAndTestingDoneChange,
+            acceptanceDone = uiState.acceptanceDone,
+            onAcceptanceDoneChange = viewModel::onAcceptanceDoneChange,
+            onSave = {
+                onSave(viewModel.getUpdatedToDo())
+            },
+            onCancel = onCancel,
+            onNavigateBack = onNavigateBack,
+            modifier = Modifier.padding(innerPadding),
+        )
+    }
 }
 
 /**
@@ -74,6 +97,9 @@ fun AddEditToDoContent(
     onTitleChange: (String) -> Unit,
     description: String,
     onDescriptionChange: (String) -> Unit,
+    isNewToDo: Boolean = false,
+    isLoading: Boolean = false,
+    onSurpriseMeClick: () -> Unit = {},
     selectedUser: User?,
     onUserSelected: (User?) -> Unit,
     users: List<User>,
@@ -103,7 +129,7 @@ fun AddEditToDoContent(
 
         // Title text
         Text(
-            text = "Add/Edit ToDo",
+            text = if (isNewToDo) "Add ToDo" else "Edit ToDo",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
         )
@@ -125,6 +151,27 @@ fun AddEditToDoContent(
             maxLines = 5,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        // Surprise Me button - only shown when creating a new ToDo
+        if (isNewToDo) {
+            Button(
+                onClick = onSurpriseMeClick,
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("Fetching surprise...")
+                } else {
+                    Text("Surprise Me")
+                }
+            }
+        }
 
         // Assign To Dropdown
         UserDropdown(
