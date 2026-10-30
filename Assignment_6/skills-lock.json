@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "navigation-3": {
+      "source": "android/skills",
+      "sourceType": "github",
+      "skillPath": "navigation/navigation-3/SKILL.md",
+      "computedHash": "235f25b3ec726b1e6b7d14c2fb64ee4880bb5c3fdbdb38a2df13a99fed92cbec"
+    }
+  }
+}
