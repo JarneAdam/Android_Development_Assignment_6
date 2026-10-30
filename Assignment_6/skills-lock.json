@@ -6,6 +6,12 @@
       "sourceType": "github",
       "skillPath": "navigation/navigation-3/SKILL.md",
       "computedHash": "235f25b3ec726b1e6b7d14c2fb64ee4880bb5c3fdbdb38a2df13a99fed92cbec"
+    },
+    "retrofit": {
+      "source": "piyushverma0/android-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/retrofit/SKILL.md",
+      "computedHash": "015ae1e7a6830b02d8c361c7d586ce0dd5a9bdfdd1bef460c415fb7774d871be"
     }
   }
 }
